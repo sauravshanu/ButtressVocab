@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src http://*; worker-src 'none';"> -->
+        <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'http://*' 'unsafe-eval' 'unsafe-inline'; object-src 'none'"> -->
+        <meta charset="utf-8"/>
+        <script src="../scripts/jquery-3.3.1.min.js"></script>
+        <script src="popper.min.js"></script>
+        <script src="bootstrap.min.js"></script>
+        <link rel="stylesheet" href="bootstrap.min.css">
+    </head>
+    <body>
+        <div style="font-size: 12px">
+        <div class="container bg-dark p-2 col text-monospace">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <button type="button" id="backward" class="btn btn-light">-1</button>
+                <button type="button" id="today" class="btn btn-light">Today</button>
+                <button type="button" id="forward" class="btn btn-light">+1</button>
+            </div>
+            <!-- <h2>Words you looked up today!</h2> -->
+            <table class="table text-white col-10">
+                <thead>
+                    <tr>
+                        <th scope="col">Word</th>
+                        <th scope="col">Meaning</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody id="words-table" >
+                
+                </tbody>
+            </table>
+            <script src="index.js"></script>
+        </div>
+        </div>
+    </body>
+</html>
