@@ -13,45 +13,96 @@ SHOWBUTTONTEXT = "I don't remember. Show me!"
 HIDEBUTTONTEXT = "I recalled. Hide it!"
 
 function getMeaning(word, td_elem){
-    var api_url = "http://api.wordnik.com:80/v4/word.json/"+word+"/definitions?limit=5&includeRelated=true&useCanonical=true&includeTags=false&api_key=409b7cc48186d3a77732a03dc040dd8e977137f44a87a0b8f";
-    $.ajax({
-        dataType: "json",
-        url: api_url,
-        success: function(result, status){
-            var old_pos = ""; //pos = parts of speech 
-            definitions = result
-            root = document.createElement("p")
-            root.setAttribute("style", "font-size:12px")
-            td_elem.appendChild(root)
-            definitions.forEach((defn, index)=> {     
-                if(old_pos != defn.partOfSpeech)      
-                {                                     
-                    old_pos = defn.partOfSpeech       
-                    elem = document.createElement("b")
-                    root.appendChild(elem)       
-                    $(elem).text(defn.partOfSpeech)   
-                }                                     
-                elem = document.createElement("div")  
-                root.appendChild(elem)           
-                $(elem).text(index+1+": "+defn.text)  
-            })                                        
-            $(root).parent().find("button").text(HIDEBUTTONTEXT)
-        },
-        error: function(result, status, error_thrown){
-            if(result.status == 404)
-                console.debug("Definition not found!")
-            else
-                console.debug("Unknown error, Code: " + result.status + ". Msg: " + error_thrown + status)
+    var api_url = getApiUrl("definitions", word)
+    var pr_api_url = getApiUrl("pronunciations", word)
+    var audio_url = getApiUrl("audio", word)
+    audio = ""
+    definitions = ""
+    pronunciation = ""
+    $.when(
+        $.ajax({
+            dataType: "json",
+            url: api_url,
+            success: function(result, status){
+                definitions = result
+            },
+            error: function(result, status, error_thrown){
+                if(result.status == 404)
+                    console.debug("Definition not found!")
+                else
+                    console.debug("Unknown error, Code: " + result.status + ". Msg: " + error_thrown + status)
+            }
+        }),
+        $.ajax({
+            dataType: "json",
+            url: pr_api_url,
+            success: function(pronunciations, status){
+                $.each(pronunciations, function(index, pronunciation_json){
+                    if(pronunciation_json.rawType == "ahd-legacy")
+                    {
+                        pronunciation = pronunciation_json.raw.substr(1, pronunciation_json.raw.length-2)
+                        return false;
+                    }
+                    else
+                        pronunciation = pronunciation_json.raw
+                })
+            }
+        }),
+        $.ajax({
+            dataType: "json",
+            url: audio_url,
+            success: function(audio_json, status){
+                try
+                {
+                    audio = audio_json[0].fileUrl
+                }
+                catch(ex)
+                {
+                    console.error("something is wrong" +ex)
+                }
+            }
+        })
+    ).then(function(){
+        var old_pos = ""; //pos = parts of speech
+        root = document.createElement("p")
+        root.setAttribute("style", "font-size:12px")
+        td_elem.appendChild(root)
+
+        elem = document.createElement("span")
+        root.appendChild(elem)
+        $(elem).html(" "+pronunciation)
+
+        if(audio.length){
+            elem = document.createElement("span")
+            elem.addEventListener("click", playAudio)
+            elem.innerHTML = ' <input src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAi0lEQVQokWNgQAYyQFzGsI JBnwED8DNcBpK+DM8YfjMUokqxMRxg+A9m8TJsBLLSEFKMDCuBAv/hCncxfGWQhUn2gaVAktkMXkBSHmh0OwNU8D9csoHhO4MikN7BcAGb5H+GYiDdCTQYq2QubkkkY/E6C LtXdiJ7BTMQMnAHXxFm6IICvhwY8AYQLgCw2U9d90B8BAAAAABJRU5ErkJggg==" width="14" type="image" height="14"><audio src="'+audio+'" "preloa d="auto"></audio> '
+            root.appendChild(elem)
         }
+        root.appendChild(document.createElement("br"))
+        definitions.forEach((defn, index)=> {
+            if(old_pos != defn.partOfSpeech)
+            {
+                old_pos = defn.partOfSpeech
+                elem = document.createElement("b")
+                root.appendChild(elem)
+                $(elem).text(defn.partOfSpeech)
+            }
+            elem = document.createElement("div")
+            root.appendChild(elem)
+            $(elem).text(index+1+": "+defn.text)
+        })
+        $(td_elem).find("button").css("pointer-events", "auto");
+        $(root).parent().find("button").text(HIDEBUTTONTEXT)
     })
 }
 
 function getDeleteButton(){
-    button_elem = document.createElement("button")
-    button_elem.setAttribute("type", "button")
-    button_elem.setAttribute("class", "btn btn-danger btn-sm")
-    button_elem.setAttribute("style", "padding: 0px 4px")
-    button_elem.innerHTML = "x"
+    button_elem = document.createElement("div")
+    img_elem = document.createElement("img")
+    img_elem.setAttribute("src", "dustin.png")
+    $( img_elem ).css("cursor", "pointer")
+    button_elem.appendChild(img_elem)
+    // button_elem.setAttribute("style", "padding: 0px 4px")
     button_elem.addEventListener("click", deleteRow)
     return button_elem
 }
@@ -81,7 +132,7 @@ function populate(offset){
         td_elem = document.createElement("td");
         tr_elem.appendChild(td_elem)
         button_elem = document.createElement("button")
-        button_elem.setAttribute("class", "wordMeaning btn btn-outline-primary btn-sm")
+        button_elem.setAttribute("class", "wordMeaning btn btn-outline-dark btn-sm")
         // button_elem.setAttribute("class", "wordMeaning")
         td_elem.appendChild(button_elem)
         td_elem.setAttribute("id", words[i])
@@ -93,7 +144,6 @@ function populate(offset){
         tr_elem.appendChild(td_elem)
         td_elem.setAttribute("id", words[i])
         td_elem.appendChild(getDeleteButton())
-
     }
 }
 populate(0)
@@ -113,6 +163,7 @@ $("#forward").click(function(){
 function showMeaning(){
     current = this
     if($(current).text() == SHOWBUTTONTEXT){
+        $(current).css("pointer-events", "none");
         getMeaning($(current).parent().attr("id"), $(current).parent()[0])
     }
     else{
@@ -131,4 +182,9 @@ function deleteRow(){
     }
     localStorage.setItem(currentDateStr, JSON.stringify(words))
     $(this).parent().parent().remove()
+}
+
+function playAudio(){
+    $(this).find("audio")[0].load();
+    $(this).find("audio")[0].play();
 }

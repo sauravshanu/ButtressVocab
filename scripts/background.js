@@ -23,7 +23,7 @@ function getApiUrl(endpoint, word){
 }
 
 function save_data(word, result){
-    if(!word.length)
+    if(!(word.length && result.length))
         return
     today_internal = new Date()
     today_str_internal = today.getFullYear().toString() + ( today.getMonth() + 1 ).toString() + today.getDate().toString()
@@ -44,6 +44,7 @@ function get_data_from_dictionary(request){
     var pr_api_url = getApiUrl("pronunciations", word)
     var audio_url = getApiUrl("audio", word)
     console.debug("Searching the word " + word + " at " + api_url)
+    audio = ""
     definitions = ""
     pronunciation = ""
     $.when(
@@ -81,7 +82,14 @@ function get_data_from_dictionary(request){
             dataType: "json",
             url: audio_url,
             success: function(audio_json, status){
-                audio = audio_json[0].fileUrl
+                try
+                {
+                    audio = audio_json[0].fileUrl
+                }
+                catch(ex)
+                {
+                    console.error("something is wrong" +ex)
+                }
                 }
         })
     ).then(function(){

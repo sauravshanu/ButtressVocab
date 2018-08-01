@@ -20,7 +20,8 @@ function dblclickSlection(){
 }
 
 browser.runtime.onMessage.addListener(function(msg){
-    console.log("selected text is "+selectedText.toString())
+    selectedTextStr = selectedText.toString()
+    console.log("selected text is "+selectedTextStr)
     definitions = msg.response.definitions
     pronunciation = msg.response.pronunciation
     audio = msg.response.audio
@@ -50,8 +51,8 @@ browser.runtime.onMessage.addListener(function(msg){
         popupElem.style.top = selectedRect.top - popupElem.style.height+window.scrollY + 'px';
         popupElem.style.backgroundColor = "#ffffff";
         popupElem.style.padding = dictBoxPadding + "px";
-        popupElem.style.fontFamily = "Segoe UI";
-        popupElem.style.fontSize = "14px";
+        popupElem.style.fontFamily = "Segoe UI !important";
+        popupElem.style.fontSize = "14px !important";
         popupElem.style.borderRadius = "0px 5px 5px 5px";
         popupElem.style.maxWidth = dictBoxMaxWidth + "px";
     
@@ -72,7 +73,7 @@ browser.runtime.onMessage.addListener(function(msg){
         $(elem).text("Definition not found!")
         popupElem.appendChild(elem)
         anchor_tag = document.createElement("a")
-        $(anchor_tag).attr("href", "https://google.co.in/search?q="+selectedText)
+        $(anchor_tag).attr("href", "https://google.co.in/search?q="+selectedTextStr)
         $(anchor_tag).attr("target", "_blank")
         $(anchor_tag).text("Search on google")
         popupElem.appendChild(anchor_tag)
@@ -82,15 +83,17 @@ browser.runtime.onMessage.addListener(function(msg){
     // This could have been else block of previous if.
     // Fill the box with the definition of the word.
     var elem = document.createElement("b")
-    $(elem ).text(selectedText.toString())
+    $(elem ).text(selectedTextStr)
     popupElem.appendChild(elem)
     elem = document.createElement("span")
     popupElem.appendChild(elem)
-    $(elem).text(pronunciation)
-    elem = document.createElement("span")
-    elem.addEventListener("click", playAudio)
-    elem.innerHTML = ' <input src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAi0lEQVQokWNgQAYyQFzGsIJBnwED8DNcBpK+DM8YfjMUokqxMRxg+A9m8TJsBLLSEFKMDCuBAv/hCncxfGWQhUn2gaVAktkMXkBSHmh0OwNU8D9csoHhO4MikN7BcAGb5H+GYiDdCTQYq2QubkkkY/E6CLtXdiJ7BTMQMnAHXxFm6IICvhwY8AYQLgCw2U9d90B8BAAAAABJRU5ErkJggg==" width="14" type="image" height="14"><audio src="'+audio+'" "preload="auto"></audio>'
-    popupElem.appendChild(elem)
+    $(elem).html(" "+pronunciation)
+    if(audio.length){
+        elem = document.createElement("span")
+        elem.addEventListener("click", playAudio)
+        elem.innerHTML = ' <input src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAi0lEQVQokWNgQAYyQFzGsIJBnwED8DNcBpK+DM8YfjMUokqxMRxg+A9m8TJsBLLSEFKMDCuBAv/hCncxfGWQhUn2gaVAktkMXkBSHmh0OwNU8D9csoHhO4MikN7BcAGb5H+GYiDdCTQYq2QubkkkY/E6CLtXdiJ7BTMQMnAHXxFm6IICvhwY8AYQLgCw2U9d90B8BAAAAABJRU5ErkJggg==" width="14" type="image" height="14"><audio src="'+audio+'" "preload="auto"></audio>'
+        popupElem.appendChild(elem)
+    }
     popupElem.appendChild(document.createElement("br"))
     var old_pos = ""; //pos = parts of speech
     definitions.forEach((defn, index)=> {
@@ -106,7 +109,7 @@ browser.runtime.onMessage.addListener(function(msg){
         $(elem).text(index+1+": "+defn.text)
     })
     anchor_tag = document.createElement("a")
-    $(anchor_tag).attr("href", "https://google.co.in/search?q=define "+selectedText)
+    $(anchor_tag).attr("href", "https://google.co.in/search?q=define "+selectedTextStr)
     $(anchor_tag).attr("target", "_blank")
     $(anchor_tag).text("Search on google")
     popupElem.appendChild(anchor_tag)
@@ -120,6 +123,7 @@ $(document).click(function(event){
 });
 
 function playAudio(){
+    $(this).find("audio")[0].load();
     $(this).find("audio")[0].play();
 }
 
