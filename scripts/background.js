@@ -26,7 +26,7 @@ function save_data(word, result){
     if(!(word.length && result.length))
         return
     today_internal = new Date()
-    today_str_internal = today.getFullYear().toString() + ( today.getMonth() + 1 ).toString() + today.getDate().toString()
+    today_str_internal = today_internal.getFullYear().toString() + ( today_internal.getMonth() + 1 ).toString() + today_internal.getDate().toString()
     if(today_str_internal != today_str)
         today_str = today_str_internal
     words_list = new Set(JSON.parse(localStorage.getItem(today_str)))

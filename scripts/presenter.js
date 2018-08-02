@@ -51,8 +51,8 @@ browser.runtime.onMessage.addListener(function(msg){
         popupElem.style.top = selectedRect.top - popupElem.style.height+window.scrollY + 'px';
         popupElem.style.backgroundColor = "#ffffff";
         popupElem.style.padding = dictBoxPadding + "px";
-        popupElem.style.fontFamily = "Segoe UI !important";
-        popupElem.style.fontSize = "14px !important";
+        popupElem.style.fontFamily = "Segoe UI";
+        popupElem.style.fontSize = "14px";
         popupElem.style.borderRadius = "0px 5px 5px 5px";
         popupElem.style.maxWidth = dictBoxMaxWidth + "px";
     
