@@ -1,5 +1,8 @@
 # ButtressVocab
-Browser addon to strengthen vocabulary while reading things on the internet.
+
+How to increase your vocabulary?
+
+This extension is the answer to the above question. It lets you see the definition of words and also saves the words you looked up which you can revisit later to memorize.
 
 Extension is available on both chrome and mozilla.
 
