@@ -19,81 +19,61 @@ function getMeaning(word, td_elem){
     audio = ""
     definitions = ""
     pronunciation = ""
-    $.when(
-        $.ajax({
-            dataType: "json",
-            url: api_url,
-            success: function(result, status){
-                definitions = result
-            },
-            error: function(result, status, error_thrown){
-                if(result.status == 404)
-                    console.debug("Definition not found!")
-                else
-                    console.debug("Unknown error, Code: " + result.status + ". Msg: " + error_thrown + status)
-            }
-        }),
-        $.ajax({
-            dataType: "json",
-            url: pr_api_url,
-            success: function(pronunciations, status){
-                $.each(pronunciations, function(index, pronunciation_json){
-                    if(pronunciation_json.rawType == "ahd-legacy")
-                    {
-                        pronunciation = pronunciation_json.raw.substr(1, pronunciation_json.raw.length-2)
-                        return false;
-                    }
+    existing_def = localStorage.getItem(word)
+    if(existing_def) 
+        renderMeaning(JSON.parse(existing_def), td_elem)
+    else
+        $.when(
+            $.ajax({
+                dataType: "json",
+                url: api_url,
+                success: function(result, status){
+                    definitions = result
+                },
+                error: function(result, status, error_thrown){
+                    if(result.status == 404)
+                        console.debug("Definition not found!")
                     else
-                        pronunciation = pronunciation_json.raw
-                })
-            }
-        }),
-        $.ajax({
-            dataType: "json",
-            url: audio_url,
-            success: function(audio_json, status){
-                try
-                {
-                    audio = audio_json[0].fileUrl
+                        console.debug("Unknown error, Code: " + result.status + ". Msg: " + error_thrown + status)
                 }
-                catch(ex)
-                {
-                    console.error("something is wrong" +ex)
+            }),
+            $.ajax({
+                dataType: "json",
+                url: pr_api_url,
+                success: function(pronunciations, status){
+                    $.each(pronunciations, function(index, pronunciation_json){
+                        if(pronunciation_json.rawType == "ahd-legacy")
+                        {
+                            pronunciation = pronunciation_json.raw.substr(1, pronunciation_json.raw.length-2)
+                            return false;
+                        }
+                        else
+                            pronunciation = pronunciation_json.raw
+                    })
                 }
+            }),
+            $.ajax({
+                dataType: "json",
+                url: audio_url,
+                success: function(audio_json, status){
+                    try
+                    {
+                        audio = audio_json[0].fileUrl
+                    }
+                    catch(ex)
+                    {
+                        console.error("something is wrong" +ex)
+                    }
+                }
+            })
+        ).then(function(){
+            result = {
+                "audio": audio,
+                "pronunciation": pronunciation,
+                "definitions": definitions
             }
+            renderMeaning(result, td_elem)
         })
-    ).then(function(){
-        var old_pos = ""; //pos = parts of speech
-        root = document.createElement("p")
-        root.setAttribute("style", "font-size:12px")
-        td_elem.appendChild(root)
-
-        elem = document.createElement("span")
-        root.appendChild(elem)
-        $(elem).html(" "+pronunciation)
-
-        if(audio.length){
-            elem = document.createElement("span")
-            elem.addEventListener("click", playAudio)
-            elem.innerHTML = ' <input src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAi0lEQVQokWNgQAYyQFzGsI JBnwED8DNcBpK+DM8YfjMUokqxMRxg+A9m8TJsBLLSEFKMDCuBAv/hCncxfGWQhUn2gaVAktkMXkBSHmh0OwNU8D9csoHhO4MikN7BcAGb5H+GYiDdCTQYq2QubkkkY/E6C LtXdiJ7BTMQMnAHXxFm6IICvhwY8AYQLgCw2U9d90B8BAAAAABJRU5ErkJggg==" width="14" type="image" height="14"><audio src="'+audio+'" "preloa d="auto"></audio> '
-            root.appendChild(elem)
-        }
-        root.appendChild(document.createElement("br"))
-        definitions.forEach((defn, index)=> {
-            if(old_pos != defn.partOfSpeech)
-            {
-                old_pos = defn.partOfSpeech
-                elem = document.createElement("b")
-                root.appendChild(elem)
-                $(elem).text(defn.partOfSpeech)
-            }
-            elem = document.createElement("div")
-            root.appendChild(elem)
-            $(elem).text(index+1+": "+defn.text)
-        })
-        $(td_elem).find("button").css("pointer-events", "auto");
-        $(root).parent().find("button").text(HIDEBUTTONTEXT)
-    })
 }
 
 function getDeleteButton(){
@@ -181,10 +161,47 @@ function deleteRow(){
         words.splice(index, 1);
     }
     localStorage.setItem(currentDateStr, JSON.stringify(words))
+    localStorage.removeItem(word)
     $(this).parent().parent().remove()
 }
 
 function playAudio(){
     $(this).find("audio")[0].load();
     $(this).find("audio")[0].play();
+}
+
+function renderMeaning(result, td_elem){
+    audio = result.audio
+    definitions = result.definitions
+    pronunciation = result.pronunciation
+    var old_pos = ""; //pos = parts of speech
+    root = document.createElement("p")
+    root.setAttribute("style", "font-size:12px")
+    td_elem.appendChild(root)
+
+    elem = document.createElement("span")
+    root.appendChild(elem)
+    $(elem).html(" "+pronunciation)
+
+    if(audio.length){
+        elem = document.createElement("span")
+        elem.addEventListener("click", playAudio)
+        elem.innerHTML = ' <input src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAi0lEQVQokWNgQAYyQFzGsI JBnwED8DNcBpK+DM8YfjMUokqxMRxg+A9m8TJsBLLSEFKMDCuBAv/hCncxfGWQhUn2gaVAktkMXkBSHmh0OwNU8D9csoHhO4MikN7BcAGb5H+GYiDdCTQYq2QubkkkY/E6C LtXdiJ7BTMQMnAHXxFm6IICvhwY8AYQLgCw2U9d90B8BAAAAABJRU5ErkJggg==" width="14" type="image" height="14"><audio src="'+audio+'" "preloa d="auto"></audio> '
+        root.appendChild(elem)
+    }
+    root.appendChild(document.createElement("br"))
+    definitions.forEach((defn, index)=> {
+        if(old_pos != defn.partOfSpeech)
+        {
+            old_pos = defn.partOfSpeech
+            elem = document.createElement("b")
+            root.appendChild(elem)
+            $(elem).text(defn.partOfSpeech)
+        }
+        elem = document.createElement("div")
+        root.appendChild(elem)
+        $(elem).text(index+1+": "+defn.text)
+    })
+    $(td_elem).find("button").css("pointer-events", "auto");
+    $(root).parent().find("button").text(HIDEBUTTONTEXT)
 }

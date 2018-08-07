@@ -23,7 +23,7 @@ function getApiUrl(endpoint, word){
 }
 
 function save_data(word, result){
-    if(!(word.length && result.length))
+    if(!(word.length && result.definitions.length))
         return
     today_internal = new Date()
     today_str_internal = today_internal.getFullYear().toString() + ( today_internal.getMonth() + 1 ).toString() + today_internal.getDate().toString()
@@ -33,8 +33,8 @@ function save_data(word, result){
     words_list.add(word)
     // Store words looked up today.
     localStorage.setItem(today_str, JSON.stringify(Array.from(words_list)))
-    // // Store day on which word was looked up.
-    // localStorage.setItem(word, today_str)
+    // Store day on which word was looked up.
+    localStorage.setItem(word, JSON.stringify(result))
 }
 
 function get_data_from_dictionary(request){
@@ -47,6 +47,11 @@ function get_data_from_dictionary(request){
     audio = ""
     definitions = ""
     pronunciation = ""
+    existing_def = localStorage.getItem(word)
+    if(existing_def){
+        send_data(JSON.parse(existing_def))
+        return
+    }
     $.when(
         $.ajax({
             dataType: "json",
@@ -99,7 +104,7 @@ function get_data_from_dictionary(request){
             "pronunciation": pronunciation
         }
         send_data(result)
-        save_data(word, definitions)
+        save_data(word, result)
     })
 }
 

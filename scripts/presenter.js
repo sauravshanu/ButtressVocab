@@ -22,6 +22,7 @@ function dblclickSlection(){
 browser.runtime.onMessage.addListener(function(msg){
     selectedTextStr = selectedText.toString()
     console.log("selected text is "+selectedTextStr)
+    console.log(msg)
     definitions = msg.response.definitions
     pronunciation = msg.response.pronunciation
     audio = msg.response.audio
