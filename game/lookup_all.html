@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <script src="../scripts/jquery-3.3.1.min.js"></script>
+        <script src="../scripts/background.js"></script>
+        <script src="../popup/popper.min.js"></script>
+        <script src="../popup/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="../popup/bootstrap.min.css">
+    </head>
+    <body>
+        <div style="font-size: 12px;" class="container">
+            <nav class="navbar bg-dark p-3">
+                <button type="button" id="all" class="btn btn-primary btn-sm">All</button>
+                <button type="button" id="backward" class="btn btn-light btn-sm">Previous day</button>
+                <button type="button" id="today" class="btn btn-primary btn-sm">Today</button>
+                <button type="button" id="forward" class="btn btn-light btn-sm">Next day</button>
+            </nav>
+            <!-- <h2>Words you looked up today!</h2> -->
+            <table class="table" style="">
+                <thead>
+                    <tr>
+                        <th width="120">Word</th>
+                        <th width="250">Meaning</th>
+                        <th width="20"></th>
+                    </tr>
+                </thead>
+                <tbody id="words-table" >
+
+                </tbody>
+            </table>
+            <script src="../popup/index.js"></script>
+        </div>
+    </body>
+</html>
+

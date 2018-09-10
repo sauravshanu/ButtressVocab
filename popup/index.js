@@ -79,7 +79,7 @@ function getMeaning(word, td_elem){
 function getDeleteButton(){
     button_elem = document.createElement("div")
     img_elem = document.createElement("img")
-    img_elem.setAttribute("src", "dustin.png")
+    img_elem.setAttribute("src", "../popup/dustin.png")
     $( img_elem ).css("cursor", "pointer")
     button_elem.appendChild(img_elem)
     // button_elem.setAttribute("style", "padding: 0px 4px")
@@ -87,7 +87,7 @@ function getDeleteButton(){
     return button_elem
 }
 
-function populate(offset){
+function populate_by_date(offset){
     if(offset == 0)
         currentDate = getCurrentLocalDate()
     else
@@ -99,6 +99,10 @@ function populate(offset){
     }
     currentDateStr = currentDate.getFullYear().toString() + ( currentDate.getMonth() + 1  ).toString() + currentDate.getDate().toString();
     words = JSON.parse(localStorage.getItem(currentDateStr));
+    populate(words)
+}
+
+function populate(words){
     word_container = document.getElementById("words-table");
     word_container.innerHTML = ""
     for(i in words){
@@ -126,19 +130,57 @@ function populate(offset){
         td_elem.appendChild(getDeleteButton())
     }
 }
-populate(0)
+
+populate_by_date(0)
 
 $("#today").click(function(){
-    populate(0)
+    populate_by_date(0)
 })
 
 $("#backward").click(function(){
-    populate(-1)
+    populate_by_date(-1)
 })
 
 $("#forward").click(function(){
-    populate(1)
+    populate_by_date(1)
 })
+
+$("#all").click(function(){
+    populate_count(0)
+})
+
+$("#populate10").click(function(){
+    populate_count(10)
+})
+
+$("#populate50").click(function(){
+    populate_count(50)
+})
+
+$("#populate100").click(function(){
+    populate_count(100)
+})
+
+$("#populate500").click(function(){
+    populate_count(500)
+})
+
+
+function populate_count(count){
+    words_to_send = []
+    words = Object.keys(localStorage)
+    i = count
+    len = words.length
+    if(i > len || i == 0)
+        i = words.length
+    while ( i-- ) {
+        if(isNaN(words[i]))
+        {
+            words_to_send.push(words[i])
+        }
+    }
+    populate(words_to_send)
+}
 
 function showMeaning(){
     current = this
