@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "Buttress Vocabulary",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "Strengthen your vocabulary while reading things on browser.",
   "browser_action": {
       "default_icon": "icons/book.png",
