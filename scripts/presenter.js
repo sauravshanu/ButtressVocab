@@ -50,13 +50,13 @@ browser.runtime.onMessage.addListener(function(msg){
         // Always appear on top.
         popupElem.style.zIndex = "3000"; 
         popupElem.style.top = selectedRect.top - popupElem.style.height+window.scrollY + 'px';
-        popupElem.style.backgroundColor = "#ffffff";
         popupElem.style.padding = dictBoxPadding + "px";
-        popupElem.style.fontFamily = "Segoe UI";
-        popupElem.style.fontSize = "14px";
-        popupElem.style.borderRadius = "0px 5px 5px 5px";
         popupElem.style.maxWidth = dictBoxMaxWidth + "px";
-    
+        popupElem.style.borderRadius = "0px 5px 5px 5px";
+        // some pages were overriding my style settings. I overrode them again.
+        style_attribs = popupElem.getAttribute("style");
+        look_style = "background-color: #ffffff !important; font-family: Segoe UI !important; font-size: 14px !important;"
+        popupElem.setAttribute("style", style_attribs + ";" + look_style)
         dictBoxLeftOffset = selectedRect.left + selectedRect.width + window.scrollX + 1;
         pageWidth = $(window).width();
         if ( (dictBoxMaxWidth + dictBoxLeftOffset ) > (pageWidth - dictBoxPadding)) {
@@ -97,7 +97,15 @@ browser.runtime.onMessage.addListener(function(msg){
     }
     popupElem.appendChild(document.createElement("br"))
     var old_pos = ""; //pos = parts of speech
+    var old_attribution = "" // attribution text
     definitions.forEach((defn, index)=> {
+        if(old_attribution != defn.attributionText){
+            old_attribution = defn.attributionText
+            elem = document.createElement("div")
+            elem.setAttribute("style", "font-style: italic; font-size: 11px")
+            popupElem.appendChild(elem)
+            $(elem).text("Definition " + defn.attributionText)
+        }
         if(old_pos != defn.partOfSpeech)
         {
             old_pos = defn.partOfSpeech

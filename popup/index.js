@@ -111,7 +111,7 @@ function populate(words){
 
         td_elem = document.createElement("td");
         tr_elem.appendChild(td_elem)
-        td_elem.innerHTML = words[i]
+        td_elem.innerHTML = "<a href=\"https://www.wordnik.com/words/"+ words[i] + "\" target=\"_blank\">"+ words[i] + "</a>";
 
         td_elem = document.createElement("td");
         tr_elem.appendChild(td_elem)
@@ -217,6 +217,7 @@ function renderMeaning(result, td_elem){
     definitions = result.definitions
     pronunciation = result.pronunciation
     var old_pos = ""; //pos = parts of speech
+    var old_attribution = "";
     root = document.createElement("p")
     root.setAttribute("style", "font-size:12px")
     td_elem.appendChild(root)
@@ -233,6 +234,13 @@ function renderMeaning(result, td_elem){
     }
     root.appendChild(document.createElement("br"))
     definitions.forEach((defn, index)=> {
+        if(old_attribution != defn.attributionText){                         
+            old_attribution = defn.attributionText                           
+            elem = document.createElement("div")                             
+            elem.setAttribute("style", "font-style: italic; font-size: 11px")
+            root.appendChild(elem)                                      
+            $(elem).text("Definition " + defn.attributionText)               
+        }                                                                    
         if(old_pos != defn.partOfSpeech)
         {
             old_pos = defn.partOfSpeech
