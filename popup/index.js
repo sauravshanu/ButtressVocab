@@ -111,7 +111,7 @@ function populate(words){
 
         td_elem = document.createElement("td");
         tr_elem.appendChild(td_elem)
-        td_elem.innerHTML = "<a href=\"https://www.wordnik.com/words/"+ words[i] + "\" target=\"_blank\">"+ words[i] + "</a>";
+        td_elem.innerHTML = words[i];
 
         td_elem = document.createElement("td");
         tr_elem.appendChild(td_elem)
@@ -213,11 +213,13 @@ function playAudio(){
 }
 
 function renderMeaning(result, td_elem){
+    // TODO
+    // This should be rendered from the background.js.
+    // I should add synonyms information.
     audio = result.audio
     definitions = result.definitions
     pronunciation = result.pronunciation
     var old_pos = ""; //pos = parts of speech
-    var old_attribution = "";
     root = document.createElement("p")
     root.setAttribute("style", "font-size:12px")
     td_elem.appendChild(root)
@@ -234,13 +236,6 @@ function renderMeaning(result, td_elem){
     }
     root.appendChild(document.createElement("br"))
     definitions.forEach((defn, index)=> {
-        if(old_attribution != defn.attributionText){                         
-            old_attribution = defn.attributionText                           
-            elem = document.createElement("div")                             
-            elem.setAttribute("style", "font-style: italic; font-size: 11px")
-            root.appendChild(elem)                                      
-            $(elem).text("Definition " + defn.attributionText)               
-        }                                                                    
         if(old_pos != defn.partOfSpeech)
         {
             old_pos = defn.partOfSpeech
@@ -249,8 +244,17 @@ function renderMeaning(result, td_elem){
             $(elem).text(defn.partOfSpeech)
         }
         elem = document.createElement("div")
+        meaning = document.createElement("div")
+        elem.appendChild(meaning)
+        if(defn.example) {
+            example = document.createElement("div")
+            $(example).text("\""+defn.example+"\"")
+            elem.appendChild(example)
+            example.setAttribute("style", "color: #878787 !important;");
+        }
+        $(meaning).text(index+1+": "+defn.text)
         root.appendChild(elem)
-        $(elem).text(index+1+": "+defn.text)
+
     })
     $(td_elem).find("button").css("pointer-events", "auto");
     $(root).parent().find("button").text(HIDEBUTTONTEXT)
