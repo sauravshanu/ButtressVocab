@@ -1,28 +1,27 @@
 {
-
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Buttress Vocabulary",
-  "version": "2.1.1",
-  "description": "Strengthen your vocabulary while reading things on browser.",
-  "browser_action": {
-      "default_icon": "icons/128book.png",
-      "default_title": "ButtressVocab",
-      "default_popup": "popup/index.html"
+  "version": "3.1.1",
+  "description": "Strengthen your vocabulary while reading things on the browser.",
+  "action": {
+    "default_icon": "icons/128book.png",
+    "default_title": "ButtressVocab",
+    "default_popup": "popup/index.html"
   },
   "icons": {
     "128": "icons/128book.png"
   },
   "permissions": [
-          "activeTab"
+    "activeTab",
+    "storage"
   ],
   "background": {
-          "scripts": ["scripts/jquery-3.3.1.min.js", "scripts/background.js"]
+    "service_worker": "scripts/background.js"
   },
   "content_scripts": [
     {
-      "matches": ["*://*/*"],
-      "js": ["scripts/jquery-3.3.1.min.js", "scripts/presenter.js"]
+      "matches": ["<all_urls>"],
+      "js": ["scripts/jquery-3.7.1.min.js", "scripts/presenter.js"]
     }
   ]
-
 }
